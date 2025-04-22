@@ -1,0 +1,41 @@
+{
+  "name": "assert-json-object",
+  "version": "1.0.0",
+  "description": "🧪 Fluent, chainable assertions for JSON structures with dot-path access.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaktestowac/assert-json-object.git"
+  },
+  "homepage": "https://github.com/jaktestowac/assert-json-object",
+  "keywords": [
+    "assertion",
+    "json",
+    "testing",
+    "validation",
+    "dot-path",
+    "typescript",
+    "matcher",
+    "expect"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "prepare": "tsup",
+    "test": "vitest run",
+    "npm:patch": "npm version patch",
+    "npm:publish": "npm publish --access public"
+  },
+  "author": "jaktestowac.pl",
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^7.2.0",
+    "typescript": "^5.3.3",
+    "prettier": "3.5.3",
+    "vitest": "^3.1.2"
+  }
+}
