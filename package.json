@@ -21,7 +21,8 @@
     "dot-path",
     "typescript",
     "matcher",
-    "expect"
+    "expect",
+    "automation"
   ],
   "scripts": {
     "build": "tsup",
