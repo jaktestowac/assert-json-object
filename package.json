@@ -1,6 +1,6 @@
 {
   "name": "assert-json-object",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "🧪 Fluent, chainable assertions for JSON structures with dot-path access.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
