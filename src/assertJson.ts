@@ -11,6 +11,13 @@ type PrimitiveType = "string" | "number" | "boolean" | "object" | "array" | "und
 type SoftOptions = { soft?: boolean; maxErrors?: number };
 
 /**
+ * Options for value matching.
+ */
+type MatchValueOptions = {
+  caseInsensitive?: boolean;
+};
+
+/**
  * Fluent assertion class for JSON objects.
  * Supports dot-path access, negation, and soft assertion mode.
  */
@@ -197,15 +204,25 @@ export class JsonAssertion {
    * Asserts that the value at the given path equals the expected value (deep equality).
    * @param path Dot-path string
    * @param expected Expected value
+   * @param options Optional configuration for value matching
    * .toMatchValue(path, value): Asserts value is exactly equal (deep)
+   * .toMatchValue(path, value, { caseInsensitive: true }): For strings, ignores case
    */
-  toMatchValue(path: string, expected: unknown) {
+  toMatchValue(path: string, expected: unknown, options?: MatchValueOptions) {
     const value = getValueAtPath(this.target, path);
-    const match = JSON.stringify(value) === JSON.stringify(expected);
+    let match = false;
+
+    // Handle case insensitive string comparison
+    if (options?.caseInsensitive && typeof value === "string" && typeof expected === "string") {
+      match = value.toLowerCase() === expected.toLowerCase();
+    } else {
+      // Default deep equality comparison
+      match = JSON.stringify(value) === JSON.stringify(expected);
+    }
 
     if (match === this.negated) {
       const err = new Error(
-        `Expected value at '${path}' ${this.negated ? "not " : ""}to equal ${JSON.stringify(expected)}, but got ${JSON.stringify(value)}`,
+        `Expected value at '${path}' ${this.negated ? "not " : ""}to equal ${JSON.stringify(expected)}${options?.caseInsensitive ? " (case insensitive)" : ""}, but got ${JSON.stringify(value)}`,
       );
       return this.handleError(err);
     }

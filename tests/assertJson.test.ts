@@ -471,4 +471,44 @@ describe("JsonAssertion", () => {
     expect(() => assertion.not.toBeOneOf("c", [{ x: 1 }, { y: 2 }])).toThrow(/not to be one of/);
     expect(() => assertion.not.toBeOneOf("g", [undefined, null])).toThrow(/not to be one of/);
   });
+
+  test("toMatchValue with caseInsensitive option", () => {
+    // Arrange
+    const data = { greeting: "Hello World", name: "John Doe" };
+    const assertion = assertJson(data);
+
+    // Act & Assert
+    expect(() => assertion.toMatchValue("greeting", "hello world", { caseInsensitive: true })).not.toThrow();
+    expect(() => assertion.toMatchValue("greeting", "HELLO WORLD", { caseInsensitive: true })).not.toThrow();
+    expect(() => assertion.toMatchValue("name", "john doe", { caseInsensitive: true })).not.toThrow();
+
+    // Should fail without caseInsensitive
+    expect(() => assertion.toMatchValue("greeting", "hello world")).toThrow(/to equal/);
+
+    // Should fail even with caseInsensitive when strings don't match
+    expect(() => assertion.toMatchValue("greeting", "hi world", { caseInsensitive: true })).toThrow(/to equal/);
+
+    // Should correctly handle negation
+    expect(() => assertion.not.toMatchValue("greeting", "hi world", { caseInsensitive: true })).not.toThrow();
+    expect(() => assertion.not.toMatchValue("greeting", "hello world", { caseInsensitive: true })).toThrow(
+      /not to equal/,
+    );
+  });
+
+  test("toMatchValue caseInsensitive only applies to strings", () => {
+    // Arrange
+    const data = {
+      num: 42,
+      bool: true,
+      arr: [1, 2, 3],
+      obj: { a: 1 },
+    };
+    const assertion = assertJson(data);
+
+    // Act & Assert - caseInsensitive should be ignored for non-string values
+    expect(() => assertion.toMatchValue("num", 42, { caseInsensitive: true })).not.toThrow();
+    expect(() => assertion.toMatchValue("bool", true, { caseInsensitive: true })).not.toThrow();
+    expect(() => assertion.toMatchValue("arr", [1, 2, 3], { caseInsensitive: true })).not.toThrow();
+    expect(() => assertion.toMatchValue("obj", { a: 1 }, { caseInsensitive: true })).not.toThrow();
+  });
 });

@@ -51,6 +51,17 @@ assertion
 Collect all assertion errors and inspect them later:
 
 ```typescript
+import { assertJson } from "assert-json-object";
+
+const data = {
+  user: {
+    name: "Alice",
+    age: 30,
+    tags: ["admin", "editor"],
+    address: { city: "NYC" },
+  },
+};
+
 const assertion = assertJson(data, { soft: true });
 
 assertion
@@ -60,6 +71,13 @@ assertion
   .not.toHaveKey("user.name"); // error
 
 console.log(assertion.getErrors());
+
+// Output: Array of errors
+// [
+//   Error: Expected 'user.age' to be type 'string', but got 'number',
+//   Error: Expected value at 'user.address.city' to equal "LA", but got "NYC",
+//   Error: Expected key 'user.name' not to exist,
+// ]
 ```
 
 ---
@@ -75,14 +93,15 @@ Returns a `JsonAssertion` instance.
 
 ### Assertion Methods
 
-| Method                          | Description                                                                                                             |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `.toHaveKey(path)`              | Asserts that the given dot-path exists.                                                                                 |
-| `.toBeType(path, type)`         | Asserts the value at path is of the given type (`string`, `number`, `boolean`, `object`, `array`, `undefined`, `null`). |
-| `.toMatchValue(path, expected)` | Asserts the value at path equals the expected value (deep equality).                                                    |
-| `.toSatisfy(path, predicate)`   | Asserts the value at path satisfies the predicate function.                                                             |
-| `.not`                          | Negates the next assertion.                                                                                             |
-| `.getErrors()`                  | Returns an array of errors (only in soft mode).                                                                         |
+| Method                                                     | Description                                                                                                             |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `.toHaveKey(path)`                                         | Asserts that the given dot-path exists.                                                                                 |
+| `.toBeType(path, type)`                                    | Asserts the value at path is of the given type (`string`, `number`, `boolean`, `object`, `array`, `undefined`, `null`). |
+| `.toMatchValue(path, expected)`                            | Asserts the value at path equals the expected value (deep equality).                                                    |
+| `.toMatchValue(path, expected, { caseInsensitive: true })` | Asserts the value at path equals the expected value, ignoring case for strings.                                         |
+| `.toSatisfy(path, predicate)`                              | Asserts the value at path satisfies the predicate function.                                                             |
+| `.not`                                                     | Negates the next assertion.                                                                                             |
+| `.getErrors()`                                             | Returns an array of errors (only in soft mode).                                                                         |
 
 ---
 
@@ -127,6 +146,17 @@ console.log(assertion.getErrors().length);
 
 console.log(assertion.getErrors()[0].message);
 // Output: Expected 'foo' to be type 'string', but got 'number'
+```
+
+### Case Insensitive Value Comparison
+
+```typescript
+const data = { greeting: "Hello World" };
+assertJson(data).toMatchValue("greeting", "hello world", { caseInsensitive: true });
+// No error thrown
+
+assertJson(data).toMatchValue("greeting", "hello world");
+// Throws: Error: Expected value at 'greeting' to equal "hello world", but got "Hello World"
 ```
 
 ---
@@ -191,23 +221,24 @@ assertJson(data)
 
 ## 🔎 More Matchers
 
-| Method                           | Description                                                                                                             |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `.toHaveKey(path)`               | Asserts that the given dot-path exists.                                                                                 |
-| `.not.toHaveKey(path)`           | Asserts that the given dot-path does NOT exist.                                                                         |
-| `.toBeType(path, type)`          | Asserts the value at path is of the given type (`string`, `number`, `boolean`, `object`, `array`, `undefined`, `null`). |
-| `.toBeDefined(path)`             | Asserts the value at path is defined (not `undefined`).                                                                 |
-| `.toBeNull(path)`                | Asserts the value at path is `null`.                                                                                    |
-| `.toBeTruthy(path)`              | Asserts the value at path is truthy.                                                                                    |
-| `.toBeFalsy(path)`               | Asserts the value at path is falsy.                                                                                     |
-| `.toMatchValue(path, expected)`  | Asserts the value at path equals the expected value (deep equality).                                                    |
-| `.toContainValue(path, value)`   | Asserts the value at path (array or string) contains the given value.                                                   |
-| `.toBeGreaterThan(path, number)` | Asserts the value at path is a number greater than the given number.                                                    |
-| `.toBeLessThan(path, number)`    | Asserts the value at path is a number less than the given number.                                                       |
-| `.toBeOneOf(path, [values])`     | Asserts the value at path matches any value in the provided array (deep equality).                                      |
-| `.toSatisfy(path, predicate)`    | Asserts the value at path satisfies the predicate function.                                                             |
-| `.not`                           | Negates the next assertion.                                                                                             |
-| `.getErrors()`                   | Returns an array of errors (only in soft mode).                                                                         |
+| Method                                   | Description                                                                                                             |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `.toHaveKey(path)`                       | Asserts that the given dot-path exists.                                                                                 |
+| `.not.toHaveKey(path)`                   | Asserts that the given dot-path does NOT exist.                                                                         |
+| `.toBeType(path, type)`                  | Asserts the value at path is of the given type (`string`, `number`, `boolean`, `object`, `array`, `undefined`, `null`). |
+| `.toBeDefined(path)`                     | Asserts the value at path is defined (not `undefined`).                                                                 |
+| `.toBeNull(path)`                        | Asserts the value at path is `null`.                                                                                    |
+| `.toBeTruthy(path)`                      | Asserts the value at path is truthy.                                                                                    |
+| `.toBeFalsy(path)`                       | Asserts the value at path is falsy.                                                                                     |
+| `.toMatchValue(path, expected)`          | Asserts the value at path equals the expected value (deep equality).                                                    |
+| `.toMatchValue(path, expected, options)` | Asserts the value at path equals the expected value with options (`{ caseInsensitive: true }`).                         |
+| `.toContainValue(path, value)`           | Asserts the value at path (array or string) contains the given value.                                                   |
+| `.toBeGreaterThan(path, number)`         | Asserts the value at path is a number greater than the given number.                                                    |
+| `.toBeLessThan(path, number)`            | Asserts the value at path is a number less than the given number.                                                       |
+| `.toBeOneOf(path, [values])`             | Asserts the value at path matches any value in the provided array (deep equality).                                      |
+| `.toSatisfy(path, predicate)`            | Asserts the value at path satisfies the predicate function.                                                             |
+| `.not`                                   | Negates the next assertion.                                                                                             |
+| `.getErrors()`                           | Returns an array of errors (only in soft mode).                                                                         |
 
 ---
 

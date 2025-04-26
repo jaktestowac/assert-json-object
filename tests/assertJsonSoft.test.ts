@@ -338,4 +338,34 @@ describe("assertJsonSoft", () => {
     expect(errors[3].message).toMatch(/not to be one of/);
     expect(errors[4].message).toMatch(/not to satisfy predicate/);
   });
+
+  test("toMatchValue with caseInsensitive option in soft mode", () => {
+    const data = { greeting: "Hello World", name: "John" };
+    const assertion = assertJsonSoft(data);
+
+    assertion.toMatchValue("greeting", "hello world", { caseInsensitive: true }); // ok
+    assertion.toMatchValue("name", "JOHN", { caseInsensitive: true }); // ok
+    assertion.toMatchValue("greeting", "hello universe", { caseInsensitive: true }); // error
+    assertion.not.toMatchValue("greeting", "hello world", { caseInsensitive: true }); // error
+
+    const errors = assertion.getErrors();
+    expect(errors.length).toBe(2);
+    expect(errors[0].message).toMatch(/to equal.*"hello universe"/);
+    expect(errors[0].message).toMatch(/case insensitive/);
+    expect(errors[1].message).toMatch(/not to equal.*"hello world"/);
+    expect(errors[1].message).toMatch(/case insensitive/);
+  });
+
+  test("toMatchValue caseInsensitive error messages include indicator", () => {
+    const data = { greeting: "Hello", farewell: "Goodbye" };
+    const assertion = assertJsonSoft(data);
+
+    assertion.toMatchValue("greeting", "HELLO", { caseInsensitive: true }); // ok
+    assertion.toMatchValue("farewell", "hello", { caseInsensitive: true }); // error
+
+    const errors = assertion.getErrors();
+    expect(errors.length).toBe(1);
+    expect(errors[0].message).toContain("(case insensitive)");
+    expect(errors[0].message).toMatch(/Expected value at 'farewell'.*to equal.*"hello"/);
+  });
 });
